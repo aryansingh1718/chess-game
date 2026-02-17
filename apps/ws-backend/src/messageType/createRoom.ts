@@ -3,10 +3,12 @@ import { users } from "../userManager";
 import {WebSocket} from "ws";
 import { roomPayload } from "../interface/roomInterface";
 
-export default async function createRoom(ws:WebSocket,parsedData:roomPayload,userId:string){
+export default async function createRoom(ws:WebSocket,parsedData:roomPayload){
     const user = users.find(x => x.socket === ws);
+
                 if(!user) return;
-    
+                const userId = user?.userId;
+
                 if(user?.room !== null){
                     ws.send(JSON.stringify({
                         type:"error",

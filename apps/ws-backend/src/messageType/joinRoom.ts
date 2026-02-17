@@ -42,6 +42,11 @@ export default async function joinRoom(ws:WebSocket,parsedData:roomPayload){
                 return;
             }
 
+            if (user.leaveTimeout) {
+                clearTimeout(user.leaveTimeout);
+                user.leaveTimeout = undefined;
+            }
+
             if(room.players.length >= 2){
                 ws.send(JSON.stringify({
                     type:"error",
@@ -55,6 +60,7 @@ export default async function joinRoom(ws:WebSocket,parsedData:roomPayload){
                     id:roomId
                 },
                 data:{
+                    available:false,
                     players:{
                         connect:{
                             id:user.userId

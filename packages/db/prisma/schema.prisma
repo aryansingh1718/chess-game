@@ -17,17 +17,23 @@ model User {
   moves       Move[]       
   winner      Room[]        @relation("roomWinner")
   joinedRooms Room[]        @relation("roomPlayers")
+  blackGames  Room[]        @relation("blackPiece")
+  whiteGames  Room[]        @relation("whitePiece")
 }
 
 model Room {
   id        Int           @id @default(autoincrement())
   name      String        
   createdAt DateTime      @default(now())
-  active    Boolean?      @default(true)
+  active    Boolean      @default(true)
   available Boolean       @default(true)
   adminId   String        
   admin     User          @relation("roomAdmin",fields: [adminId],references: [id])
   players   User[]        @relation("roomPlayers")
+  blackId   String?
+  black     User?          @relation("blackPiece",fields: [blackId],references: [id])
+  whiteId   String?
+  white     User?          @relation("whitePiece",fields: [whiteId],references: [id])
   moves     Move[]
   winnerId  String?
   winner    User?          @relation("roomWinner",fields: [winnerId],references: [id])
@@ -41,6 +47,8 @@ model Move {
   user      User          @relation(fields: [userId],references: [id])
   roomId    Int
   room      Room          @relation(fields: [roomId],references: [id])
+
+  @@index([roomId])
 }
 
 
