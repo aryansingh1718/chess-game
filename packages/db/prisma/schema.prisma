@@ -9,22 +9,25 @@ datasource db {
 }
 
 model User {
-  id        String        @id @default(uuid())
-  username  String        @unique
-  password  String        
-  name      String
-  rooms     Room[]        @relation("roomAdmin")
-  moves     Move[]       
-  winner    Room[]        @relation("roomWinner")
+  id          String        @id @default(uuid())
+  username    String        @unique
+  password   String        
+  name        String
+  rooms       Room[]        @relation("roomAdmin")
+  moves       Move[]       
+  winner      Room[]        @relation("roomWinner")
+  joinedRooms Room[]        @relation("roomPlayers")
 }
 
 model Room {
   id        Int           @id @default(autoincrement())
-  name      String        @unique
+  name      String        
   createdAt DateTime      @default(now())
-  active    Boolean?       @default(true)
+  active    Boolean?      @default(true)
+  available Boolean       @default(true)
   adminId   String        
   admin     User          @relation("roomAdmin",fields: [adminId],references: [id])
+  players   User[]        @relation("roomPlayers")
   moves     Move[]
   winnerId  String?
   winner    User?          @relation("roomWinner",fields: [winnerId],references: [id])

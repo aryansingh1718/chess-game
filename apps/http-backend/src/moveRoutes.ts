@@ -26,7 +26,7 @@ router.get("/:slug",async(req:Request,res:Response) => {
     if(!room){
         return res.status(404).json({
             error:"This room does not exist"
-        })
+        });
     }
 
     if (room.active == true) {
@@ -45,7 +45,7 @@ router.get("/:slug",async(req:Request,res:Response) => {
     })
     res.json({
         moves
-    })
+    });
 });
 
 export default router;
