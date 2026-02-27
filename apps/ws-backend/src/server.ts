@@ -8,7 +8,7 @@ export default function server(ws:WebSocket,request:IncomingMessage){
         if(!url) 
             return;
     
-        const queryParams = new URLSearchParams(url.split("?")[1]);
+        const queryParams = new URLSearchParams(url.split("?")[1] || "");
         const token = queryParams.get("token") || "";
         const userId = checkUser(token);
     
@@ -20,7 +20,13 @@ export default function server(ws:WebSocket,request:IncomingMessage){
             ws.close();
             return;
         }
-    
+        
+        const existingUser = users.find(x => x.userId === userId);
+        if(existingUser){
+            existingUser.socket = ws;
+            return userId;
+        }
+        
         users.push({
             userId,
             socket:ws,

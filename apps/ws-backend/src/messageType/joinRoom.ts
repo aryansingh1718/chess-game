@@ -2,6 +2,7 @@ import { prismaClient } from "@repo/db/client";
 import { users } from "../userManager";
 import WebSocket from "ws";
 import { roomPayload } from "../interface/roomInterface";
+import { gameStart } from "../gameStart";
 
 export default async function joinRoom(ws:WebSocket,parsedData:roomPayload){
 
@@ -54,7 +55,6 @@ export default async function joinRoom(ws:WebSocket,parsedData:roomPayload){
                 }));
                 return;
             }
-
             await prismaClient.room.update({
                 where:{
                     id:roomId
@@ -65,10 +65,22 @@ export default async function joinRoom(ws:WebSocket,parsedData:roomPayload){
                         connect:{
                             id:user.userId
                         }
-                    }
+                    },
+                    blackId:user.userId
                 }
-            })
-            const roomName = room.name
+            });
+
+            const updatedRoom = await prismaClient.room.findUnique({
+                where:{ id: roomId },
+                include:{ players:true }
+            });
+
+            if(updatedRoom?.players.length === 2){
+                gameStart(updatedRoom.id);
+            }
+
+            if(!updatedRoom) return;
+            const roomName = updatedRoom.name;
             user.room = roomId;
 
             ws.send(JSON.stringify({

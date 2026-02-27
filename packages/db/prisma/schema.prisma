@@ -37,11 +37,13 @@ model Room {
   moves     Move[]
   winnerId  String?
   winner    User?          @relation("roomWinner",fields: [winnerId],references: [id])
+  draw      Boolean        @default(false)
 }
 
 model Move {
   id        Int           @id @default(autoincrement())
   move      String
+  fen       String
   createdAt DateTime      @default(now())
   userId    String
   user      User          @relation(fields: [userId],references: [id])

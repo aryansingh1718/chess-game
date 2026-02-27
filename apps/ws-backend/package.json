@@ -12,6 +12,7 @@
     "@repo/common": "workspace:*",
     "@repo/db": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "chess.js": "^1.4.0",
     "jsonwebtoken": "^9.0.3",
     "ws": "^8.19.0"
   },

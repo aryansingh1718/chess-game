@@ -1,0 +1,1 @@
+{"root":["./src/auth.ts","./src/gamemanager.ts","./src/gamestart.ts","./src/index.ts","./src/server.ts","./src/usermanager.ts","./src/interface/roominterface.ts","./src/messagetype/createroom.ts","./src/messagetype/joinroom.ts","./src/messagetype/leaveroom.ts","./src/messagetype/makemove.ts"],"version":"5.9.2"}

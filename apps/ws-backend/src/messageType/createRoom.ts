@@ -44,6 +44,7 @@ export default async function createRoom(ws:WebSocket,parsedData:roomPayload){
                         name:roomName,
                         active:true,
                         adminId:userId,
+                        whiteId:userId,
                         players:{
                             connect:{
                                 id:user.userId
