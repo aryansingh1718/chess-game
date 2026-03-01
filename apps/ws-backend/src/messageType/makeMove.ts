@@ -3,6 +3,9 @@ import { roomPayload } from "../interface/roomInterface";
 import WebSocket from "ws";
 import { users } from "../userManager";
 import { prismaClient } from "@repo/db/client";
+import { Square,Move } from "chess.js";
+
+
 
 export default async function handleMakeMove(ws:WebSocket,parsedData:roomPayload){
 
@@ -23,10 +26,27 @@ export default async function handleMakeMove(ws:WebSocket,parsedData:roomPayload
     const playerColor = userId === whiteId ? "w" : "b";
     if(game.chess.turn() !== playerColor) return;       // not your turn
 
+    const possibleMoves:Move[] = game.chess.moves({     //stores all the possible moves for a particular square along with the details on each move whether any move is having promotion or something.
+        square: from as Square,
+        verbose: true
+    });
+
+    const moveObj = possibleMoves.find(m => m.to === to);
+    if (!moveObj) return;
+
+    if (moveObj?.isPromotion() && !parsedData.promotion) {      //if frontend hasn't specified the piece to which the user wants to promote
+        user.socket.send(JSON.stringify({
+            type: "promotion-required",
+            from,
+            to
+        }));
+        return;
+    }
+
     const result = game.chess.move({
         from,
         to,
-        promotion:"q"
+        promotion: parsedData.promotion || "q"
     });
 
     if(!result) return;     //illegal move

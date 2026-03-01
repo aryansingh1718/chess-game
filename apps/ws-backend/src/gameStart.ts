@@ -30,7 +30,10 @@ export async function gameStart(roomId:number) {
     games.set(roomId,{
         chess,
         whiteId:room.whiteId,
-        blackId:room.blackId
+        blackId:room.blackId,
+        whiteTime:600,
+        blackTime:600,
+        lastMoveTimeStamp:Date.now()
     })
 
 

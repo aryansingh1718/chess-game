@@ -9,16 +9,16 @@ export default async function createRoom(ws:WebSocket,parsedData:roomPayload){
                 if(!user) return;
                 const userId = user?.userId;
 
-                if(user?.room !== null){
+                if(user?.room !== null){            //if user is already in a room
                     ws.send(JSON.stringify({
                         type:"error",
-                        message:"You cannot create another room while being in another room"
+                        message:"You cannot create another room while being in another room"         
                     }));
                     return;
                 }
     
                 const roomName = parsedData.roomName;
-                if(!roomName){
+                if(!roomName){                      //if user hasn't given the roomId
                     ws.send(JSON.stringify({
                         type:"error",
                         message:"Room ID is required"

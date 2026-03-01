@@ -3,6 +3,7 @@ import { users } from "../userManager";
 import WebSocket from "ws";
 import { roomPayload } from "../interface/roomInterface";
 import { gameStart } from "../gameStart";
+import { games } from "../gameManager";
 
 export default async function joinRoom(ws:WebSocket,parsedData:roomPayload){
 
@@ -35,6 +36,7 @@ export default async function joinRoom(ws:WebSocket,parsedData:roomPayload){
                     players:true
                 }
             });
+
             if(!room){
                 ws.send(JSON.stringify({
                     type:"error",
@@ -46,6 +48,18 @@ export default async function joinRoom(ws:WebSocket,parsedData:roomPayload){
             if (user.leaveTimeout) {
                 clearTimeout(user.leaveTimeout);
                 user.leaveTimeout = undefined;
+            }
+
+            const game = games.get(roomId);
+
+            if (game) {
+                ws.send(JSON.stringify({
+                    type: "game-state",
+                    payload: {
+                        fen: game.chess.fen(),
+                        turn: game.chess.turn()
+                    }
+                }));
             }
 
             if(room.players.length >= 2){
