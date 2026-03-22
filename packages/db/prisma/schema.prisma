@@ -25,7 +25,7 @@ model Room {
   id        Int           @id @default(autoincrement())
   name      String        
   createdAt DateTime      @default(now())
-  active    Boolean      @default(true)
+  active    Boolean      @default(false)
   available Boolean       @default(true)
   adminId   String        
   admin     User          @relation("roomAdmin",fields: [adminId],references: [id])

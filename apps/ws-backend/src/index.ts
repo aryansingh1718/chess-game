@@ -6,16 +6,16 @@ import leaveRoom from "./messageType/leaveRoom";
 import handleMakeMove from "./messageType/makeMove";
 import { disconnectHandler } from "./disconnectHandler";
 
-const wss = new WebSocketServer({port:8080});
+const wss = new WebSocketServer({port:8080});           //declaring a new ws server
 
 wss.on("connection",(ws:WebSocket,request) => {
 
-    const userId = server(ws,request);
+    const userId = server(ws,request);                  //getting userId from server
     if(!userId) {
         return
     }
 
-    ws.on("message", async (data) => {
+    ws.on("message", async (data) => {          //message handler
         
         const parsedData = JSON.parse(data.toString());
 
@@ -36,9 +36,7 @@ wss.on("connection",(ws:WebSocket,request) => {
         }
     });
 
-    ws.on("close", async(data) => {
-
-        const parsedData = JSON.parse(data.toString());
-        await disconnectHandler(ws,parsedData)
+    ws.on("close", async() => {             //disconnect handler
+        await disconnectHandler(ws);
     })
 })

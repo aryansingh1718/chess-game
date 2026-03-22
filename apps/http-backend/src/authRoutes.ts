@@ -5,20 +5,21 @@ import { Router } from "express";
 import { Request,Response } from "express";
 import {userSignupSchema,userSigninSchema} from "@repo/common/types";
 import { authMiddleware } from "./authMiddleware";
+import bcrypt from "bcrypt";
 
 const router:Router = Router();
 
 router.post("/signup",async (req:Request,res:Response) => {
     const parsedData = userSignupSchema.safeParse(req.body);
     if(!parsedData.success){
-        return res.status(411).json({
+        return res.status(400).json({
             error:"Enter correct inputs!"
         })
     }
 
     const {name,username,password} = parsedData.data;
-
     try{
+        const hashedPassword = await bcrypt.hash(password,10)
         const existingUser =await prismaClient.user.findUnique({
             where:{
                 username
@@ -26,7 +27,7 @@ router.post("/signup",async (req:Request,res:Response) => {
         });
 
         if(existingUser){
-            return res.status(411).json({
+            return res.status(409).json({
                 message:"User with this username already exists!"
             })
         }
@@ -35,12 +36,16 @@ router.post("/signup",async (req:Request,res:Response) => {
             data:{
                 name,
                 username,
-                password
+                password:hashedPassword
+            },select:{
+                id:true,
+                name:true,
+                username:true
             }
         });
         const token = jwt.sign({
             userId: user.id
-        },JWT_SECRET)
+        },JWT_SECRET,{ expiresIn: "7d" })
 
         res.json({
             message:"User created with the given username!",
@@ -58,7 +63,7 @@ router.post("/signup",async (req:Request,res:Response) => {
 router.post("/signin",async (req:Request,res:Response) => {
     const parsedData = userSigninSchema.safeParse(req.body);
     if(!parsedData.success){
-        return res.status(411).json({
+        return res.status(400).json({
             error:"Enter correct inputs!"
         });
     }
@@ -66,26 +71,35 @@ router.post("/signin",async (req:Request,res:Response) => {
     const {username,password} = parsedData.data;
 
     try{
-        const userExists = await prismaClient.user.findFirst({
+        const user = await prismaClient.user.findUnique({
             where:{
-                username
+                username,
             }
         })
 
-        if(!userExists){
-            return res.status(411).json({
+        if(!user){
+            return res.status(404).json({
                 message:"This username doesn't exist!"
             })
         }
 
-        const user = userExists;
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({
+                message: "Incorrect password"
+            });
+        }
         const token = jwt.sign({
             userId:user.id
-        },JWT_SECRET);
+        },JWT_SECRET,{ expiresIn: "7d" });
 
         res.json({
             message:"User signed in",
-            user,
+            user:{
+                id:user.id,
+                name:user.name,
+                username:user.username
+            },
             token
         })
 
@@ -99,7 +113,7 @@ router.post("/signin",async (req:Request,res:Response) => {
 router.get("/:slug",authMiddleware,async(req:Request,res:Response) => {
     const id = String(req.params.slug);
     if(!id){
-        return res.status(403).json({
+        return res.status(400).json({
             error:"Enter valid User Name"
         })
     }
@@ -107,6 +121,10 @@ router.get("/:slug",authMiddleware,async(req:Request,res:Response) => {
     const user = await prismaClient.user.findUnique({
         where:{
             id
+        },select:{
+            id:true,
+            name:true,
+            username:true
         }
     });
     if(!user){

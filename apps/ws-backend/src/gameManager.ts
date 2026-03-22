@@ -6,5 +6,6 @@ export const games = new Map<number,{
     blackId:string,
     whiteTime:number,
     blackTime:number,
-    lastMoveTimeStamp:number
+    lastMoveTimeStamp:number,
+    moveTimeout?:NodeJS.Timeout
 }>();

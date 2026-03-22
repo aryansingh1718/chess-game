@@ -2,11 +2,12 @@ import { prismaClient } from "@repo/db/client";
 import {Chess} from "chess.js";
 import { games } from "./gameManager";
 import { users } from "./userManager";
+import startMoveTimer from "./startMoveTimer";
 
-export async function gameStart(roomId:number) {
+export async function gameStart(roomId:number) {                //function execting in the beginning of the game doing initial things
     
-    const room = await prismaClient.room.findUnique({
-        where:{
+    const room = await prismaClient.room.findUnique({           //finding if the room with given roomId exists actively and has both players.
+        where:{ 
             id:roomId
         },
         include:{
@@ -19,24 +20,26 @@ export async function gameStart(roomId:number) {
     if(!room.active) return;
     if(room.available) return;
     if(!room.whiteId || !room.blackId) return;
-    if(games.has(roomId)) return;
+    if(games.has(roomId)) return;                           //check if a game is already going on in this room
 
     const whiteUser = users.find(x => x.userId === room.whiteId);
     const blackUser = users.find(x => x.userId === room.blackId);
     if(!whiteUser || !blackUser) return;
 
-    const chess = new Chess();
+    const chess = new Chess();                              //initializing a new chess instance for this room
     
-    games.set(roomId,{
+    games.set(roomId,{                                      //putting a new game instance in games map
         chess,
         whiteId:room.whiteId,
         blackId:room.blackId,
-        whiteTime:600,
-        blackTime:600,
+        whiteTime:600000,
+        blackTime:600000,
         lastMoveTimeStamp:Date.now()
-    })
+    });
 
+    startMoveTimer(roomId);                       //setting the move timer          
 
+    //sending both users the success msg and their fen and turn
     whiteUser.socket.send(JSON.stringify({
         type:"game-start",
         payload:{
