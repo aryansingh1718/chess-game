@@ -26,6 +26,9 @@ importers:
       axios:
         specifier: ^1.13.6
         version: 1.13.6
+      chess.js:
+        specifier: ^1.4.0
+        version: 1.4.0
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0

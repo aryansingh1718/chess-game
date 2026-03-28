@@ -1,10 +1,10 @@
 "use client"
-import { WS_URL } from "@/config";
 import { useEffect, useRef, useState } from "react"
 import SidebarListener from "../components/firstPage/sideBarListener";
 import { handleWsMsg } from "../components/helper/handleWsMsg";
 import ShowRoomInput from "./showRoomInput";
 import { initSocket } from "../components/helper/socket";
+import { Square } from "../components/game/game";
 
 export default function HomePage(){
 
@@ -14,7 +14,7 @@ export default function HomePage(){
     const [roomName, setRoomName] = useState("");
     const [fen, setFen] = useState("");
     const [turn, setTurn] = useState<"w" | "b" | null>(null);
-    const [lastMove, setLastMove] = useState("");
+    const [lastMove, setLastMove] = useState<{from:Square,to:Square} | null>(null);
     const [promotion, setPromotion] = useState<{from:string,to:string} | null>(null);
     const [winner, setWinner] = useState<string | null>(null);
     const [successMsg, setsuccessMsg] = useState("");
@@ -38,6 +38,8 @@ export default function HomePage(){
 
         ws.onopen = () => {
             console.log("websocket connected");
+            console.log("HomePage socket created:", ws);
+console.log("socket readyState:", ws.readyState);
             setConnected(true);
         }
 
@@ -67,10 +69,6 @@ export default function HomePage(){
                 setWhitePlayer,
                 setBlackPlayer
             )
-        }
-
-        return () => {
-            ws.close();
         }
     },[token])
 

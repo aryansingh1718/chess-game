@@ -1,3 +1,4 @@
+import { Square } from "../game/game";
 
 export function handleWsMsg(
     event: MessageEvent,
@@ -5,7 +6,7 @@ export function handleWsMsg(
     setRoomName: (v: string) => void,
     setFen: (v: string) => void,
     setTurn: (v: "w" | "b" | null) => void,
-    setLastMove: (v: string) => void,
+    setLastMove: (v: { from: Square; to: Square }) => void,
     setPromotion: (v: { from: string; to: string } | null) => void,
     setWinner: (v: string | null) => void,
     setSuccessMsg: (v: string) => void,
