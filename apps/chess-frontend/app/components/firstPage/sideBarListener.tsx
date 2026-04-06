@@ -6,8 +6,8 @@ import { useMediaQuery } from "../screenSize";
 interface showProps {
     showSignup:boolean;
     showSignin:boolean;
-    showJoinRoom:boolean;
-    setShowJoinRoom: React.Dispatch<React.SetStateAction<boolean>>;
+    showJoinRoom?:boolean;
+    setShowJoinRoom?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function SidebarListener({showSignup,showSignin,showJoinRoom,setShowJoinRoom}:showProps){
