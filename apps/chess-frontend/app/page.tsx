@@ -1,3 +1,4 @@
+"use client";
 import AuthRedirect from "./components/authRedirect";
 import CenterPart from "./components/firstPage/centerpart";
 import ChallengeBot from "./components/firstPage/challengeBot";
@@ -14,7 +15,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#302e2b] flex">
       <AuthRedirect></AuthRedirect>
-      <SidebarListener showSignin = {true} showSignup = {true}></SidebarListener>
+      <SidebarListener showSignin = {true} showSignup = {true} showJoinRoom = {false} setShowJoinRoom={() => {}}></SidebarListener>
       <div className="md:ml-80 ml-20 mr-20 mt-20 flex flex-col gap-y-12">
         <CenterPart></CenterPart>
         <div className="flex flex-col justify-between items-center">
