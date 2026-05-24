@@ -1,10 +1,18 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Game, Square } from "../components/game/game";
+import { Game } from "../components/game/game";
 import { Renderer } from "../components/game/renderer";
 import { handleWsMsg } from "../components/helper/handleWsMsg";
 import { getSocket, initSocket } from "../components/helper/socket";
 import { handleBoardClick } from "../components/helper/handleBoardClick";
+
+function fromAlgebraic(sq: string): { row: number; col: number } {
+    const files = "abcdefgh";
+    return {
+        col: files.indexOf(sq[0]),
+        row: 8 - parseInt(sq[1])
+    };
+}
 
 export default function GameRoom() {
 
@@ -12,14 +20,19 @@ export default function GameRoom() {
     const rendererRef = useRef<Renderer | null>(null);
     const gameRef = useRef<Game | null>(null);
     const socketRef = useRef<WebSocket | null>(null);
+    const playerColorRef = useRef<"w" | "b" | null>(null);
 
     const [playerColor, setPlayerColor] = useState<"w" | "b" | null>(null);
     const [whitePlayer, setWhitePlayer] = useState("");
     const [blackPlayer, setBlackPlayer] = useState("");
-    const [selected,setSelected] = useState<{row:number,col:number} | null>(null);
+    const [selected, setSelected] = useState<{row:number,col:number} | null>(null);
 
     const bottomPlayer = playerColor === "w" ? whitePlayer : blackPlayer;
     const topPlayer = playerColor === "w" ? blackPlayer : whitePlayer;
+
+    useEffect(() => {
+        playerColorRef.current = playerColor;
+    }, [playerColor]);
 
     useEffect(() => {
         const color = localStorage.getItem("playerColor") as "w" | "b";
@@ -36,51 +49,42 @@ export default function GameRoom() {
         gameRef.current = new Game();
     }, []);
 
-    // Subscribe to WebSocket
     useEffect(() => {
-        let ws = getSocket();
-            console.log("GameRoom getSocket:", ws);
-    console.log("readyState:", ws?.readyState);
-           if (!ws) {
         const token = localStorage.getItem("token");
+        if (!token) return;
 
-        if (!token) {
-            console.log("token missing");
-            return;
+        let ws = getSocket();
+        if (!ws || ws.readyState === WebSocket.CLOSED) {
+            ws = initSocket(token);
         }
 
-        console.log("socket missing, initializing in GameRoom");
-        ws = initSocket(token);
-    }
-    
         socketRef.current = ws;
-            console.log("socket set:", ws);
-        const handler = (event: MessageEvent) => {
-            console.log("RAW WS event:", event.data);
 
+        const handler = (event: MessageEvent) => {
             handleWsMsg(
                 event,
-                () => {}, // roomId
-                () => {}, // roomName
-                () => {}, // fen
-                () => {}, // turn
+                () => {},
+                () => {},
+                () => {},
+                () => {},
                 (lastMove) => {
-                    console.log("WS lastMove received:", lastMove);
-
-                    gameRef.current?.makeMove(lastMove.from, lastMove.to);
-
-                    console.log("turn after sync:", gameRef.current?.getTurn());
-
+                    gameRef.current?.makeMove(
+                        fromAlgebraic(lastMove.from),
+                        fromAlgebraic(lastMove.to)
+                    );
                     rendererRef.current?.draw(
                         gameRef.current!.getBoard(),
-                        playerColor!
+                        playerColorRef.current!
                     );
                 },
-                () => {}, // promotion
-                () => {}, // winner
-                () => {}, // successMsg
-                () => {}, // errorMsg
-                setPlayerColor,
+                () => {},
+                () => {},
+                () => {},
+                () => {},
+                (color) => {
+                    setPlayerColor(color);
+                    playerColorRef.current = color;
+                },
                 (name) => {
                     setWhitePlayer(name);
                     localStorage.setItem("whitePlayer", name);
@@ -93,7 +97,6 @@ export default function GameRoom() {
         };
 
         ws.addEventListener("message", handler);
-
         return () => {
             ws.removeEventListener("message", handler);
         };
@@ -116,44 +119,35 @@ export default function GameRoom() {
 
     useEffect(() => {
         const canvas = canvasRef.current;
-        if(!canvas) return;
+        if (!canvas) return;
 
-        const handleClick = (e:MouseEvent) => {
-            console.log("canvas clicked");
+        const handleClick = (e: MouseEvent) => {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            handleBoardClick(x,y,playerColor,socketRef.current,selected,setSelected,gameRef.current,rendererRef.current);
+            handleBoardClick(x, y, playerColor, socketRef.current, selected, setSelected, gameRef.current, rendererRef.current);
         };
-        canvas.addEventListener("click",handleClick);
-        console.log("listener attached");
+
+        canvas.addEventListener("click", handleClick);
         return () => {
             canvas.removeEventListener("click", handleClick);
         };
-    },[playerColor,selected]);
+    }, [playerColor, selected]);
 
     return (
         <div className="flex items-center justify-center h-screen">
             <div className="relative">
-
-                {/* Top Player */}
                 <div className="absolute -top-8 left-0 text-lg font-semibold">
                     {topPlayer}
                 </div>
-
-                {/* Canvas */}
                 <canvas
                     ref={canvasRef}
                     width={700}
                     height={700}
-                    
                 />
-
-                {/* Bottom Player */}
                 <div className="absolute -bottom-8 right-0 text-lg font-semibold">
                     {bottomPlayer}
                 </div>
-
             </div>
         </div>
     );

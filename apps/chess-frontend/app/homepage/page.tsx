@@ -4,7 +4,6 @@ import SidebarListener from "../components/firstPage/sideBarListener";
 import { handleWsMsg } from "../components/helper/handleWsMsg";
 import ShowRoomInput from "./showRoomInput";
 import { initSocket } from "../components/helper/socket";
-import { Square } from "../components/game/game";
 
 export default function HomePage(){
 
@@ -14,7 +13,7 @@ export default function HomePage(){
     const [roomName, setRoomName] = useState("");
     const [fen, setFen] = useState("");
     const [turn, setTurn] = useState<"w" | "b" | null>(null);
-    const [lastMove, setLastMove] = useState<{from:Square,to:Square} | null>(null);
+    const [lastMove, setLastMove] = useState<{from:string,to:string} | null>(null);
     const [promotion, setPromotion] = useState<{from:string,to:string} | null>(null);
     const [winner, setWinner] = useState<string | null>(null);
     const [successMsg, setsuccessMsg] = useState("");
@@ -37,14 +36,10 @@ export default function HomePage(){
         socketRef.current = ws;
 
         ws.onopen = () => {
-            console.log("websocket connected");
-            console.log("HomePage socket created:", ws);
-console.log("socket readyState:", ws.readyState);
             setConnected(true);
         }
 
         ws.onclose = () => {
-            console.log("websocket closed");
             socketRef.current = null;
             setConnected(false);
         }
@@ -79,9 +74,9 @@ console.log("socket readyState:", ws.readyState);
     }
 
     return <div className="min-h-screen bg-[#302e2b] flex">
-        <SidebarListener showSignin = {false} showSignup = {false} showJoinRoom={showJoinRoom} setShowJoinRoom={setShowJoinRoom}></SidebarListener>
-        <div className=" mt-10 flex">
-            <ShowRoomInput showJoinRoom={showJoinRoom} socket={socketRef} successMsg={successMsg} errorMsg={errorMsg} setSuccessMsg={setsuccessMsg} setErrorMsg={setErrorMsg} roomId = {roomId} setRoomId = {setRoomId} playerColor={playerColor} setPlayerColor={setPlayerColor} whitePlayer={whitePlayer} blackPlayer={blackPlayer}></ShowRoomInput>  
+        <SidebarListener showSignin={false} showSignup={false} showJoinRoom={showJoinRoom} setShowJoinRoom={setShowJoinRoom}></SidebarListener>
+        <div className="mt-10 flex">
+            <ShowRoomInput showJoinRoom={showJoinRoom} socket={socketRef} successMsg={successMsg} errorMsg={errorMsg} setSuccessMsg={setsuccessMsg} setErrorMsg={setErrorMsg} roomId={roomId} setRoomId={setRoomId} playerColor={playerColor} setPlayerColor={setPlayerColor} whitePlayer={whitePlayer} blackPlayer={blackPlayer}></ShowRoomInput>  
         </div>
     </div>
 }

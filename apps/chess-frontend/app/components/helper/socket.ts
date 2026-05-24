@@ -3,7 +3,7 @@ import { WS_URL } from "@/config";
 let socket: WebSocket | null = null;
 
 export function initSocket(token: string) {
-    if (!socket) {
+    if (!socket || socket.readyState === WebSocket.CLOSED) {
         socket = new WebSocket(`${WS_URL}?token=${token}`);
     }
     return socket;

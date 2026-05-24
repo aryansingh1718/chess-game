@@ -3,6 +3,11 @@ import { Game } from "../game/game";
 import { getSquare } from "./getSquare";
 import { Renderer } from "../game/renderer";
 
+function toAlgebraic(square: { row: number; col: number }): string {
+    const files = "abcdefgh";
+    return files[square.col] + (8 - square.row);
+}
+
 
 export function handleBoardClick(x:number,y:number,playerColor:"w" | "b" | null,socket:WebSocket | null,selected:{row:number,col:number} | null,  setSelected: Dispatch<SetStateAction<{ row: number; col: number } | null>>,game:Game | null,renderer:Renderer | null){
         console.log("handleBoardClick called");
@@ -28,6 +33,7 @@ console.log("game:", game);
     };
 
     const isValid = game.makeMove(move.from, move.to);
+    console.log("isValid:", isValid);
     console.log("current turn:", game.getTurn());
     if(!isValid){
         setSelected(null);
@@ -36,12 +42,15 @@ console.log("game:", game);
 
     if(isValid){
         renderer?.draw(game.getBoard(), playerColor);
-
-        socket.send(JSON.stringify({type:"make-move",data:{
-            roomId: localStorage.getItem("roomId"),
-            from: move.from,
-            to: move.to
-        }}));
+        console.log("socket:", socket);
+        console.log("socket readyState:", socket?.readyState);
+        console.log("roomId from localStorage:", localStorage.getItem("roomId"));
+        socket.send(JSON.stringify({
+            type:"make-move",
+            roomId: Number(localStorage.getItem("roomId")),
+            from: toAlgebraic(move.from),
+            to: toAlgebraic(move.to)
+        }));
     }
     setSelected(null);
 }

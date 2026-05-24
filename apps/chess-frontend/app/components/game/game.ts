@@ -36,11 +36,8 @@ export class Game {
     }
 
     makeMove(from:Square, to:Square):boolean{
-
         const piece = this.board[from.row][from.col];
         if(!piece) return false;
-
-        if(piece.color != this.turn) return false;
 
         if(!this.isValidMove(piece, from, to)) return false;
 

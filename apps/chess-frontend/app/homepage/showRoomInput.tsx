@@ -10,39 +10,40 @@ export default function ShowRoomInput({showJoinRoom,socket,successMsg,errorMsg,s
     const [sendRoomId,setSendRoomId] = useState("");
     const [action,setAction] = useState<"create" | "join" | null>(null);
 
-        useEffect(() => {
-            if(!errorMsg) return;
-    
+    useEffect(() => {
+        if(!errorMsg) return;
+
+        const timer = setTimeout(() => {
+            setErrorMsg("");
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, [errorMsg]);
+
+    useEffect(() => {
+        if(successMsg){
             const timer = setTimeout(() => {
-                setErrorMsg("");
+                localStorage.setItem("playerColor", playerColor);
+                localStorage.setItem("whitePlayer", whitePlayer);
+                localStorage.setItem("blackPlayer", blackPlayer);
+                if(roomId) localStorage.setItem("roomId", roomId);
+                router.push("/gameRoom");
             }, 1500);
-    
+
             return () => clearTimeout(timer);
-        }, [errorMsg]);
+        }
+    }, [successMsg, playerColor]);
 
-        useEffect(() => {
-            if(successMsg){
-                const timer = setTimeout(() => {
-                    localStorage.setItem("playerColor",playerColor);
-                    localStorage.setItem("whitePlayer",whitePlayer);
-                    localStorage.setItem("blackPlayer",blackPlayer);
-                    router.push("/gameRoom");
-                }, 1500);
-
-                return () => clearTimeout(timer);
+    useEffect(() => {
+        if(roomId){
+            if(action === "create"){
+                console.log("Room created:", roomId);
             }
-        }, [successMsg,playerColor]);
-
-        useEffect(() => {
-            if(roomId){
-                if(action === "create"){
-                    console.log("Room created:", roomId);
-                }
-                else if(action === "join"){
-                    console.log("Joined room:", roomId);
-                }
+            else if(action === "join"){
+                console.log("Joined room:", roomId);
             }
-        }, [roomId,action]);
+        }
+    }, [roomId, action]);
 
     function createRoom(){
         setSuccessMsg("");
@@ -57,11 +58,6 @@ export default function ShowRoomInput({showJoinRoom,socket,successMsg,errorMsg,s
             type:"create-room",
             roomName: sendRoomName
         }));
-        try{
-            console.log(roomId);
-        }catch(e){
-            console.log(e);
-        }
     }
 
     function joinRoom(){
@@ -77,11 +73,6 @@ export default function ShowRoomInput({showJoinRoom,socket,successMsg,errorMsg,s
             type:"join-room",
             roomId: Number(sendRoomId)
         }));
-        try{
-            console.log(successMsg)
-        }catch(e){
-            console.log(e);
-        }
     }
         
     return <div className="w-screen h-screen bg-[#302e2b] flex flex-col gap-y-20 items-center pt-5">
@@ -102,7 +93,7 @@ export default function ShowRoomInput({showJoinRoom,socket,successMsg,errorMsg,s
                 </div>}
                 {errorMsg && <div className="text-xs text-center">
                     {errorMsg}
-                    </div>}
+                </div>}
         </div>
     </div>
 }
