@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
+    "start:http": "turbo run start --filter=http-backend",
+    "start:ws": "turbo run start --filter=ws-backend",
     "dev": "pnpm -r --parallel dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",

@@ -5,8 +5,16 @@ import joinRoom from "./messageType/joinRoom";
 import leaveRoom from "./messageType/leaveRoom";
 import handleMakeMove from "./messageType/makeMove";
 import { disconnectHandler } from "./disconnectHandler";
+import http from "http";
 
-const wss = new WebSocketServer({port:8080});           //declaring a new ws server
+const PORT = Number(process.env.PORT) || 8080;
+const httpServer = http.createServer((req, res) => {
+    res.writeHead(200);
+        res.end("OK");
+    });
+
+const wss = new WebSocketServer({ server: httpServer });          //declaring a new ws server
+httpServer.listen(PORT, "0.0.0.0", () => console.log(`Listening on ${PORT}`));
 
 wss.on("connection",(ws:WebSocket,request) => {
 
@@ -40,3 +48,11 @@ wss.on("connection",(ws:WebSocket,request) => {
         await disconnectHandler(ws);
     })
 })
+
+process.on("unhandledRejection", (reason) => {
+    console.error("Unhandled Rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+    console.error("Uncaught Exception:", err);
+});

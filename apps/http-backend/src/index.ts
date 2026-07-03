@@ -12,4 +12,13 @@ app.use("/auth",authRoutes);
 app.use("/room",roomRoutes);
 app.use("/moves",moveRoutes);
 
-app.listen(3001);
+const PORT = Number(process.env.PORT) || 3001;
+app.listen(PORT, "0.0.0.0", () => console.log(`Listening on ${PORT}`));
+
+process.on("unhandledRejection", (reason) => {
+    console.error("Unhandled Rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+    console.error("Uncaught Exception:", err);
+});
