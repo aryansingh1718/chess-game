@@ -6,6 +6,10 @@ import cors from "cors";
 
 const app = express();
 
+console.log("DEBUG DATABASE_URL exists:", !!process.env.DATABASE_URL);
+console.log("DEBUG DATABASE_URL length:", process.env.DATABASE_URL?.length);
+console.log("DEBUG all env keys:", Object.keys(process.env).filter(k => k.includes("DATABASE")));
+
 app.use(cors());
 app.use(express.json());
 app.use("/auth",authRoutes);
